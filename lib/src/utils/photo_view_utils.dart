@@ -15,10 +15,7 @@ double getScaleForScaleState(
     case PhotoViewScaleState.zoomedOut:
       return _clampSize(scaleBoundaries.initialScale, scaleBoundaries);
     case PhotoViewScaleState.covering:
-      return _clampSize(
-          _scaleForCovering(
-              scaleBoundaries.outerSize, scaleBoundaries.childSize),
-          scaleBoundaries);
+      return _clampSize(_scaleForCovering(scaleBoundaries.outerSize, scaleBoundaries.childSize), scaleBoundaries);
     case PhotoViewScaleState.originalSize:
       return _clampSize(1.0, scaleBoundaries);
     default:
@@ -46,12 +43,10 @@ class ScaleBoundaries {
   double get minScale {
     assert(_minScale is double || _minScale is PhotoViewComputedScale);
     if (_minScale == PhotoViewComputedScale.contained) {
-      return _scaleForContained(outerSize, childSize) *
-          (_minScale as PhotoViewComputedScale).multiplier; // ignore: avoid_as
+      return _scaleForContained(outerSize, childSize) * (_minScale as PhotoViewComputedScale).multiplier; // ignore: avoid_as
     }
     if (_minScale == PhotoViewComputedScale.covered) {
-      return _scaleForCovering(outerSize, childSize) *
-          (_minScale as PhotoViewComputedScale).multiplier; // ignore: avoid_as
+      return _scaleForCovering(outerSize, childSize) * (_minScale as PhotoViewComputedScale).multiplier; // ignore: avoid_as
     }
     assert(_minScale >= 0.0);
     return _minScale;
@@ -90,23 +85,10 @@ class ScaleBoundaries {
   }
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ScaleBoundaries &&
-          runtimeType == other.runtimeType &&
-          _minScale == other._minScale &&
-          _maxScale == other._maxScale &&
-          _initialScale == other._initialScale &&
-          outerSize == other.outerSize &&
-          childSize == other.childSize;
+  bool operator ==(Object other) => identical(this, other) || other is ScaleBoundaries && runtimeType == other.runtimeType && _minScale == other._minScale && _maxScale == other._maxScale && _initialScale == other._initialScale && outerSize == other.outerSize && childSize == other.childSize;
 
   @override
-  int get hashCode =>
-      _minScale.hashCode ^
-      _maxScale.hashCode ^
-      _initialScale.hashCode ^
-      outerSize.hashCode ^
-      childSize.hashCode;
+  int get hashCode => _minScale.hashCode ^ _maxScale.hashCode ^ _initialScale.hashCode ^ outerSize.hashCode ^ childSize.hashCode;
 }
 
 double _scaleForContained(Size size, Size childSize) {
@@ -136,6 +118,7 @@ double _clampSize(double size, ScaleBoundaries scaleBoundaries) {
 /// Simple class to store a min and a max value
 class CornersRange {
   const CornersRange(this.min, this.max);
+
   final double min;
   final double max;
 }

@@ -37,12 +37,10 @@ class PhotoViewGestureDetector extends StatelessWidget {
 
     final Axis axis = scope?.axis;
 
-    final Map<Type, GestureRecognizerFactory> gestures =
-        <Type, GestureRecognizerFactory>{};
+    final Map<Type, GestureRecognizerFactory> gestures = <Type, GestureRecognizerFactory>{};
 
     if (onTapDown != null || onTapUp != null) {
-      gestures[TapGestureRecognizer] =
-          GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+      gestures[TapGestureRecognizer] = GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
         () => TapGestureRecognizer(debugOwner: this),
         (TapGestureRecognizer instance) {
           instance
@@ -52,10 +50,8 @@ class PhotoViewGestureDetector extends StatelessWidget {
       );
     }
 
-    gestures[PhotoViewGestureRecognizer] =
-        GestureRecognizerFactoryWithHandlers<PhotoViewGestureRecognizer>(
-      () => PhotoViewGestureRecognizer(
-          hitDetector: hitDetector, debugOwner: this, validateAxis: axis),
+    gestures[PhotoViewGestureRecognizer] = GestureRecognizerFactoryWithHandlers<PhotoViewGestureRecognizer>(
+      () => PhotoViewGestureRecognizer(hitDetector: hitDetector, debugOwner: this, validateAxis: axis),
       (PhotoViewGestureRecognizer instance) {
         instance
           ..onStart = onScaleStart
@@ -64,8 +60,7 @@ class PhotoViewGestureDetector extends StatelessWidget {
       },
     );
 
-    gestures[DoubleTapGestureRecognizer] =
-        GestureRecognizerFactoryWithHandlers<DoubleTapGestureRecognizer>(
+    gestures[DoubleTapGestureRecognizer] = GestureRecognizerFactoryWithHandlers<DoubleTapGestureRecognizer>(
       () => DoubleTapGestureRecognizer(debugOwner: this),
       (DoubleTapGestureRecognizer instance) {
         instance..onDoubleTap = onDoubleTap;
@@ -139,10 +134,8 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
   void _updateDistances() {
     final int count = _pointerLocations.keys.length;
     Offset focalPoint = Offset.zero;
-    for (int pointer in _pointerLocations.keys)
-      focalPoint += _pointerLocations[pointer];
-    _currentFocalPoint =
-        count > 0 ? focalPoint / count.toDouble() : Offset.zero;
+    for (int pointer in _pointerLocations.keys) focalPoint += _pointerLocations[pointer];
+    _currentFocalPoint = count > 0 ? focalPoint / count.toDouble() : Offset.zero;
   }
 
   void _decideIfWeAcceptEvent(PointerEvent event) {
@@ -150,9 +143,7 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
       return;
     }
     final move = _initialFocalPoint - _currentFocalPoint;
-    final bool shouldMove = validateAxis == Axis.vertical
-        ? hitDetector.shouldMoveY(move)
-        : hitDetector.shouldMoveX(move);
+    final bool shouldMove = validateAxis == Axis.vertical ? hitDetector.shouldMoveY(move) : hitDetector.shouldMoveX(move);
     if (shouldMove || _pointerLocations.keys.length > 1) {
       acceptGesture(event.pointer);
     }
@@ -183,8 +174,7 @@ class PhotoViewGestureDetectorScope extends InheritedWidget {
   }) : super(child: child);
 
   static PhotoViewGestureDetectorScope of(BuildContext context) {
-    final PhotoViewGestureDetectorScope scope = context
-        .dependOnInheritedWidgetOfExactType<PhotoViewGestureDetectorScope>();
+    final PhotoViewGestureDetectorScope scope = context.dependOnInheritedWidgetOfExactType<PhotoViewGestureDetectorScope>();
     return scope;
   }
 

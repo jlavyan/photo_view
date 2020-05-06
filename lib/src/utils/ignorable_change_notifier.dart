@@ -13,10 +13,7 @@ class IgnorableChangeNotifier extends ChangeNotifier {
   bool _debugAssertNotDisposed() {
     assert(() {
       if (_ignorableListeners == null) {
-        AssertionError([
-          'A $runtimeType was used after being disposed.',
-          'Once you have called dispose() on a $runtimeType, it can no longer be used.'
-        ]);
+        AssertionError(['A $runtimeType was used after being disposed.', 'Once you have called dispose() on a $runtimeType, it can no longer be used.']);
       }
       return true;
     }());
@@ -50,8 +47,7 @@ class IgnorableChangeNotifier extends ChangeNotifier {
   void notifyListeners() {
     super.notifyListeners();
     if (_ignorableListeners != null) {
-      final List<VoidCallback> localListeners =
-          List<VoidCallback>.from(_ignorableListeners);
+      final List<VoidCallback> localListeners = List<VoidCallback>.from(_ignorableListeners);
       for (VoidCallback listener in localListeners) {
         try {
           if (_ignorableListeners.contains(listener)) {
@@ -79,8 +75,7 @@ class IgnorableChangeNotifier extends ChangeNotifier {
 
 /// Just like [ValueNotifier] except it extends [IgnorableChangeNotifier] which has
 /// listeners that wont fire when [updateIgnoring] is called.
-class IgnorableValueNotifier<T> extends IgnorableChangeNotifier
-    implements ValueListenable<T> {
+class IgnorableValueNotifier<T> extends IgnorableChangeNotifier implements ValueListenable<T> {
   IgnorableValueNotifier(this._value);
 
   @override

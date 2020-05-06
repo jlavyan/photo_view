@@ -25,11 +25,7 @@ class PhotoViewComputedScale {
   }
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is PhotoViewComputedScale &&
-          runtimeType == other.runtimeType &&
-          _value == other._value;
+  bool operator ==(Object other) => identical(this, other) || other is PhotoViewComputedScale && runtimeType == other.runtimeType && _value == other._value;
 
   @override
   int get hashCode => _value.hashCode;

@@ -1,18 +1,11 @@
 import 'package:flutter/widgets.dart';
-
-import 'package:photo_view/photo_view.dart'
-    show
-        PhotoViewScaleState,
-        PhotoViewHeroAttributes,
-        PhotoViewImageTapDownCallback,
-        PhotoViewImageTapUpCallback,
-        ScaleStateCycle;
+import 'package:photo_view/photo_view.dart' show PhotoViewScaleState, PhotoViewHeroAttributes, PhotoViewImageTapDownCallback, PhotoViewImageTapUpCallback, ScaleStateCycle;
 import 'package:photo_view/src/controller/photo_view_controller.dart';
 import 'package:photo_view/src/controller/photo_view_controller_delegate.dart';
 import 'package:photo_view/src/controller/photo_view_scalestate_controller.dart';
-import 'package:photo_view/src/utils/photo_view_utils.dart';
 import 'package:photo_view/src/core/photo_view_gesture_detector.dart';
 import 'package:photo_view/src/core/photo_view_hit_corners.dart';
+import 'package:photo_view/src/utils/photo_view_utils.dart';
 
 const _defaultDecoration = const BoxDecoration(
   color: const Color.fromRGBO(0, 0, 0, 1.0),
@@ -90,11 +83,7 @@ class PhotoViewCore extends StatefulWidget {
   bool get hasCustomChild => customChild != null;
 }
 
-class PhotoViewCoreState extends State<PhotoViewCore>
-    with
-        TickerProviderStateMixin,
-        PhotoViewControllerDelegate,
-        HitCornersDetector {
+class PhotoViewCoreState extends State<PhotoViewCore> with TickerProviderStateMixin, PhotoViewControllerDelegate, HitCornersDetector {
   Offset _normalizedPosition;
   double _scaleBefore;
   double _rotationBefore;
@@ -207,16 +196,14 @@ class PhotoViewCoreState extends State<PhotoViewCore>
   }
 
   void animatePosition(Offset from, Offset to) {
-    _positionAnimation = Tween<Offset>(begin: from, end: to)
-        .animate(_positionAnimationController);
+    _positionAnimation = Tween<Offset>(begin: from, end: to).animate(_positionAnimationController);
     _positionAnimationController
       ..value = 0.0
       ..fling(velocity: 0.4);
   }
 
   void animateRotation(double from, double to) {
-    _rotationAnimation = Tween<double>(begin: from, end: to)
-        .animate(_rotationAnimationController);
+    _rotationAnimation = Tween<double>(begin: from, end: to).animate(_rotationAnimationController);
     _rotationAnimationController
       ..value = 0.0
       ..fling(velocity: 0.4);
@@ -230,8 +217,7 @@ class PhotoViewCoreState extends State<PhotoViewCore>
 
   /// Check if scale is equal to initial after scale animation update
   void onAnimationStatusCompleted() {
-    if (scaleStateController.scaleState != PhotoViewScaleState.initial &&
-        scale == scaleBoundaries.initialScale) {
+    if (scaleStateController.scaleState != PhotoViewScaleState.initial && scale == scaleBoundaries.initialScale) {
       scaleStateController.setInvisibly(PhotoViewScaleState.initial);
     }
   }
@@ -239,15 +225,12 @@ class PhotoViewCoreState extends State<PhotoViewCore>
   @override
   void initState() {
     super.initState();
-    _scaleAnimationController = AnimationController(vsync: this)
-      ..addListener(handleScaleAnimation);
+    _scaleAnimationController = AnimationController(vsync: this)..addListener(handleScaleAnimation);
     _scaleAnimationController.addStatusListener(onAnimationStatus);
 
-    _positionAnimationController = AnimationController(vsync: this)
-      ..addListener(handlePositionAnimate);
+    _positionAnimationController = AnimationController(vsync: this)..addListener(handlePositionAnimate);
 
-    _rotationAnimationController = AnimationController(vsync: this)
-      ..addListener(handleRotationAnimation);
+    _rotationAnimationController = AnimationController(vsync: this)..addListener(handleRotationAnimation);
     startListeners();
     addAnimateOnScaleStateUpdate(animateOnScaleStateUpdate);
 
@@ -315,9 +298,7 @@ class PhotoViewCoreState extends State<PhotoViewCore>
             );
             return PhotoViewGestureDetector(
               child: Container(
-                constraints: widget.tightMode
-                    ? BoxConstraints.tight(scaleBoundaries.childSize * scale)
-                    : null,
+                constraints: widget.tightMode ? BoxConstraints.tight(scaleBoundaries.childSize * scale) : null,
                 child: Center(
                   child: Transform(
                     child: customChildLayout,
@@ -393,9 +374,7 @@ class _CenterWithOriginalSizeDelegate extends SingleChildLayoutDelegate {
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-    return useImageScale
-        ? const BoxConstraints()
-        : BoxConstraints.tight(subjectSize);
+    return useImageScale ? const BoxConstraints() : BoxConstraints.tight(subjectSize);
   }
 
   @override
@@ -404,15 +383,8 @@ class _CenterWithOriginalSizeDelegate extends SingleChildLayoutDelegate {
   }
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is _CenterWithOriginalSizeDelegate &&
-          runtimeType == other.runtimeType &&
-          subjectSize == other.subjectSize &&
-          basePosition == other.basePosition &&
-          useImageScale == other.useImageScale;
+  bool operator ==(Object other) => identical(this, other) || other is _CenterWithOriginalSizeDelegate && runtimeType == other.runtimeType && subjectSize == other.subjectSize && basePosition == other.basePosition && useImageScale == other.useImageScale;
 
   @override
-  int get hashCode =>
-      subjectSize.hashCode ^ basePosition.hashCode ^ useImageScale.hashCode;
+  int get hashCode => subjectSize.hashCode ^ basePosition.hashCode ^ useImageScale.hashCode;
 }

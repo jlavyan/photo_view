@@ -3,7 +3,6 @@ library photo_view;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-
 import 'package:photo_view/src/controller/photo_view_controller.dart';
 import 'package:photo_view/src/controller/photo_view_scalestate_controller.dart';
 import 'package:photo_view/src/core/photo_view_core.dart';
@@ -15,8 +14,7 @@ import 'package:photo_view/src/utils/photo_view_utils.dart';
 
 export 'src/controller/photo_view_controller.dart';
 export 'src/controller/photo_view_scalestate_controller.dart';
-export 'src/core/photo_view_gesture_detector.dart'
-    show PhotoViewGestureDetectorScope;
+export 'src/core/photo_view_gesture_detector.dart' show PhotoViewGestureDetectorScope;
 export 'src/photo_view_computed_scale.dart';
 export 'src/photo_view_scale_state.dart';
 export 'src/utils/photo_view_hero_attributes.dart';
@@ -531,9 +529,7 @@ class _PhotoViewState extends State<PhotoView> {
               BuildContext context,
               BoxConstraints constraints,
             ) {
-              return widget.child == null
-                  ? _buildImage(context, constraints)
-                  : _buildCustomChild(context, constraints);
+              return widget.child == null ? _buildImage(context, constraints) : _buildCustomChild(context, constraints);
             },
           );
   }
@@ -568,9 +564,7 @@ class _PhotoViewState extends State<PhotoView> {
   }
 
   Widget _buildImage(BuildContext context, BoxConstraints constraints) {
-    return widget.heroAttributes == null
-        ? _buildAsync(context, constraints)
-        : _buildSync(context, constraints);
+    return widget.heroAttributes == null ? _buildAsync(context, constraints) : _buildSync(context, constraints);
   }
 
   Widget _buildAsync(BuildContext context, BoxConstraints constraints) {
