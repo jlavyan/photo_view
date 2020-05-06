@@ -110,25 +110,28 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
   @override
   void handleEvent(PointerEvent event) {
     if (validateAxis != null) {
-      _computeEvent(event);
+      bool didChangeConfiguration = false;
+      if (event is PointerMoveEvent) {
+        if (!event.synthesized) {
+          _pointerLocations[event.pointer] = event.position;
+        }
+      } else if (event is PointerDownEvent) {
+        _pointerLocations[event.pointer] = event.position;
+        didChangeConfiguration = true;
+      } else if (event is PointerUpEvent || event is PointerCancelEvent) {
+        _pointerLocations.remove(event.pointer);
+        didChangeConfiguration = true;
+      }
+
       _updateDistances();
+
+      if (didChangeConfiguration) {
+        _initialFocalPoint = _currentFocalPoint;
+      }
+
       _decideIfWeAcceptEvent(event);
     }
     super.handleEvent(event);
-  }
-
-  void _computeEvent(PointerEvent event) {
-    if (event is PointerMoveEvent) {
-      if (!event.synthesized) {
-        _pointerLocations[event.pointer] = event.position;
-      }
-    } else if (event is PointerDownEvent) {
-      _pointerLocations[event.pointer] = event.position;
-    } else if (event is PointerUpEvent || event is PointerCancelEvent) {
-      _pointerLocations.remove(event.pointer);
-    }
-
-    _initialFocalPoint = _currentFocalPoint;
   }
 
   void _updateDistances() {
@@ -144,7 +147,7 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
     }
     final move = _initialFocalPoint - _currentFocalPoint;
     final bool shouldMove = validateAxis == Axis.vertical ? hitDetector.shouldMoveY(move) : hitDetector.shouldMoveX(move);
-    if (shouldMove || _pointerLocations.keys.length > 1) {
+    if ((shouldMove || _pointerLocations.keys.length > 1) && move.distance > kScaleSlop) {
       acceptGesture(event.pointer);
     }
   }
@@ -184,4 +187,16 @@ class PhotoViewGestureDetectorScope extends InheritedWidget {
   bool updateShouldNotify(PhotoViewGestureDetectorScope oldWidget) {
     return axis != oldWidget.axis;
   }
+}
+
+class PhotoViewPageViewScrollPhysics extends ScrollPhysics {
+  const PhotoViewPageViewScrollPhysics({ScrollPhysics parent}) : super(parent: parent);
+
+  @override
+  PhotoViewPageViewScrollPhysics applyTo(ScrollPhysics ancestor) {
+    return PhotoViewPageViewScrollPhysics(parent: buildParent(ancestor));
+  }
+
+  @override
+  double get dragStartDistanceMotionThreshold => kScaleSlop * 2;
 }
