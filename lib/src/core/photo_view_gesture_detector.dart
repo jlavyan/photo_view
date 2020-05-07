@@ -36,6 +36,7 @@ class PhotoViewGestureDetector extends StatelessWidget {
     final scope = PhotoViewGestureDetectorScope.of(context);
 
     final Axis axis = scope?.axis;
+    final touchSlopFactor = scope?.touchSlopFactor;
 
     final Map<Type, GestureRecognizerFactory> gestures = <Type, GestureRecognizerFactory>{};
 
@@ -51,7 +52,7 @@ class PhotoViewGestureDetector extends StatelessWidget {
     }
 
     gestures[PhotoViewGestureRecognizer] = GestureRecognizerFactoryWithHandlers<PhotoViewGestureRecognizer>(
-      () => PhotoViewGestureRecognizer(hitDetector: hitDetector, debugOwner: this, validateAxis: axis),
+      () => PhotoViewGestureRecognizer(hitDetector: hitDetector, debugOwner: this, validateAxis: axis, touchSlopFactor: touchSlopFactor),
       (PhotoViewGestureRecognizer instance) {
         instance
           ..onStart = onScaleStart
@@ -80,15 +81,19 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
     this.hitDetector,
     Object debugOwner,
     this.validateAxis,
+    this.touchSlopFactor = 2,
     PointerDeviceKind kind,
   }) : super(debugOwner: debugOwner, kind: kind);
   final HitCornersDetector hitDetector;
   final Axis validateAxis;
+  final double touchSlopFactor;
 
   Map<int, Offset> _pointerLocations = <int, Offset>{};
 
   Offset _initialFocalPoint;
   Offset _currentFocalPoint;
+  double _initialSpan;
+  double _currentSpan;
 
   bool ready = true;
 
@@ -96,6 +101,8 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
   void addAllowedPointer(PointerEvent event) {
     if (ready) {
       ready = false;
+      _initialSpan = 0.0;
+      _currentSpan = 0.0;
       _pointerLocations = <int, Offset>{};
     }
     super.addAllowedPointer(event);
@@ -126,7 +133,9 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
       _updateDistances();
 
       if (didChangeConfiguration) {
+        // cf super._reconfigure
         _initialFocalPoint = _currentFocalPoint;
+        _initialSpan = _currentSpan;
       }
 
       _decideIfWeAcceptEvent(event);
@@ -135,10 +144,22 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
   }
 
   void _updateDistances() {
+    // cf super._update
     final int count = _pointerLocations.keys.length;
+
+    // Compute the focal point
     Offset focalPoint = Offset.zero;
-    for (int pointer in _pointerLocations.keys) focalPoint += _pointerLocations[pointer];
+    for (final int pointer in _pointerLocations.keys) focalPoint += _pointerLocations[pointer];
     _currentFocalPoint = count > 0 ? focalPoint / count.toDouble() : Offset.zero;
+
+    // Span is the average deviation from focal point. Horizontal and vertical
+    // spans are the average deviations from the focal point's horizontal and
+    // vertical coordinates, respectively.
+    double totalDeviation = 0.0;
+    for (final int pointer in _pointerLocations.keys) {
+      totalDeviation += (_currentFocalPoint - _pointerLocations[pointer]).distance;
+    }
+    _currentSpan = count > 0 ? totalDeviation / count : 0.0;
   }
 
   void _decideIfWeAcceptEvent(PointerEvent event) {
@@ -147,8 +168,18 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
     }
     final move = _initialFocalPoint - _currentFocalPoint;
     final bool shouldMove = validateAxis == Axis.vertical ? hitDetector.shouldMoveY(move) : hitDetector.shouldMoveX(move);
-    if ((shouldMove || _pointerLocations.keys.length > 1) && move.distance > kScaleSlop) {
-      acceptGesture(event.pointer);
+    if (shouldMove || _pointerLocations.keys.length > 1) {
+      final double spanDelta = (_currentSpan - _initialSpan).abs();
+      final double focalPointDelta = (_currentFocalPoint - _initialFocalPoint).distance;
+      debugPrint('spanDelta=$spanDelta <> kScaleSlop=$kScaleSlop, focalPointDelta=$focalPointDelta <> kTouchSlop=$kTouchSlop * touchSlopFactor=$touchSlopFactor');
+      // warning: do not compare `focalPointDelta` to `kPanSlop`
+      // `ScaleGestureRecognizer` uses `kPanSlop`, but `HorizontalDragGestureRecognizer` uses `kTouchSlop`
+      // and PhotoView recognizer may compete with the `HorizontalDragGestureRecognizer` from a containing `PageView`
+      // setting `touchSlopFactor` to 2 restores default `ScaleGestureRecognizer` behaviour as `kPanSlop = kTouchSlop * 2.0`
+      // setting `touchSlopFactor` in [0, 1] will allow this recognizer to accept the gesture before the one from `PageView`
+      if (spanDelta > kScaleSlop || focalPointDelta > kTouchSlop * touchSlopFactor) {
+        acceptGesture(event.pointer);
+      }
     }
   }
 }
@@ -173,6 +204,7 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
 class PhotoViewGestureDetectorScope extends InheritedWidget {
   PhotoViewGestureDetectorScope({
     this.axis,
+    this.touchSlopFactor = .8,
     @required Widget child,
   }) : super(child: child);
 
@@ -183,20 +215,41 @@ class PhotoViewGestureDetectorScope extends InheritedWidget {
 
   final Axis axis;
 
+  // in [0, 1[
+  // 0: most reactive but will not let tap recognizers accept gestures
+  // <1: less reactive but gives the most leeway to other recognizers
+  // 1: will not be able to compete with a `HorizontalDragGestureRecognizer` up the widget tree
+  final double touchSlopFactor;
+
   @override
   bool updateShouldNotify(PhotoViewGestureDetectorScope oldWidget) {
-    return axis != oldWidget.axis;
+    return axis != oldWidget.axis && touchSlopFactor != oldWidget.touchSlopFactor;
   }
 }
 
+// `PageView` contains a `Scrollable` which sets up a `HorizontalDragGestureRecognizer`
+// this recognizer will win in the gesture arena when the drag distance reaches `kTouchSlop`
+// we cannot change that, but we can prevent the scrollable from panning until this threshold is reached
+// and let other recognizers accept the gesture instead
 class PhotoViewPageViewScrollPhysics extends ScrollPhysics {
-  const PhotoViewPageViewScrollPhysics({ScrollPhysics parent}) : super(parent: parent);
+  const PhotoViewPageViewScrollPhysics({
+    this.touchSlopFactor = 1,
+    ScrollPhysics parent,
+  }) : super(parent: parent);
+
+  // in [0, 1]
+  // 0: most reactive but will not let PhotoView recognizers accept gestures
+  // 1: less reactive but gives the most leeway to PhotoView recognizers
+  final double touchSlopFactor;
 
   @override
   PhotoViewPageViewScrollPhysics applyTo(ScrollPhysics ancestor) {
-    return PhotoViewPageViewScrollPhysics(parent: buildParent(ancestor));
+    return PhotoViewPageViewScrollPhysics(
+      touchSlopFactor: touchSlopFactor,
+      parent: buildParent(ancestor),
+    );
   }
 
   @override
-  double get dragStartDistanceMotionThreshold => kScaleSlop * 2;
+  double get dragStartDistanceMotionThreshold => kTouchSlop * touchSlopFactor;
 }
