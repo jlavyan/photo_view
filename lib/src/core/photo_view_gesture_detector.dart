@@ -171,7 +171,6 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
     if (shouldMove || _pointerLocations.keys.length > 1) {
       final double spanDelta = (_currentSpan - _initialSpan).abs();
       final double focalPointDelta = (_currentFocalPoint - _initialFocalPoint).distance;
-      debugPrint('spanDelta=$spanDelta <> kScaleSlop=$kScaleSlop, focalPointDelta=$focalPointDelta <> kTouchSlop=$kTouchSlop * touchSlopFactor=$touchSlopFactor');
       // warning: do not compare `focalPointDelta` to `kPanSlop`
       // `ScaleGestureRecognizer` uses `kPanSlop`, but `HorizontalDragGestureRecognizer` uses `kTouchSlop`
       // and PhotoView recognizer may compete with the `HorizontalDragGestureRecognizer` from a containing `PageView`
