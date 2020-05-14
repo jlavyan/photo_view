@@ -1,13 +1,19 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:photo_view/src/controller/photo_view_controller_delegate.dart' show PhotoViewControllerDelegate;
 
 mixin HitCornersDetector on PhotoViewControllerDelegate {
   HitAxis hitAxis() => HitAxis(hitCornersX(), hitCornersY());
 
+  // the child width/height is not accurate for some image size & scale combos
+  // e.g. 3580.0 * 0.1005586592178771 yields 360.0
+  // but 4764.0 * 0.07556675062972293 yields 360.00000000000006
+  // so be sure to compare with `precisionErrorTolerance`
+
   HitCorners hitCornersX() {
     final double childWidth = scaleBoundaries.childSize.width * scale;
     final double screenWidth = scaleBoundaries.outerSize.width;
-    if (screenWidth >= childWidth) {
+    if (screenWidth + precisionErrorTolerance >= childWidth) {
       return const HitCorners(true, true);
     }
     final x = -position.dx;
@@ -18,7 +24,7 @@ mixin HitCornersDetector on PhotoViewControllerDelegate {
   HitCorners hitCornersY() {
     final double childHeight = scaleBoundaries.childSize.height * scale;
     final double screenHeight = scaleBoundaries.outerSize.height;
-    if (screenHeight >= childHeight) {
+    if (screenHeight + precisionErrorTolerance >= childHeight) {
       return const HitCorners(true, true);
     }
     final y = -position.dy;
