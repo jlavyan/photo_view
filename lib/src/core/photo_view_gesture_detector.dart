@@ -166,9 +166,17 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
     if (!(event is PointerMoveEvent)) {
       return;
     }
+
+    if (_pointerLocations.keys.length >= 2) {
+      // when there are multiple pointers, we always accept the gesture to scale
+      // as this is not competing with single taps or other drag gestures
+      acceptGesture(event.pointer);
+      return;
+    }
+
     final move = _initialFocalPoint - _currentFocalPoint;
     final bool shouldMove = validateAxis == Axis.vertical ? hitDetector.shouldMoveY(move) : hitDetector.shouldMoveX(move);
-    if (shouldMove || _pointerLocations.keys.length > 1) {
+    if (shouldMove) {
       final double spanDelta = (_currentSpan - _initialSpan).abs();
       final double focalPointDelta = (_currentFocalPoint - _initialFocalPoint).distance;
       // warning: do not compare `focalPointDelta` to `kPanSlop`
