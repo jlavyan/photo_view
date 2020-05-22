@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
@@ -35,7 +37,7 @@ class PhotoViewGestureDetector extends StatelessWidget {
   Widget build(BuildContext context) {
     final scope = PhotoViewGestureDetectorScope.of(context);
 
-    final Axis axis = scope?.axis;
+    final List<Axis> axis = scope?.axis;
     final touchSlopFactor = scope?.touchSlopFactor;
 
     final Map<Type, GestureRecognizerFactory> gestures = <Type, GestureRecognizerFactory>{};
@@ -85,7 +87,7 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
     PointerDeviceKind kind,
   }) : super(debugOwner: debugOwner, kind: kind);
   final HitCornersDetector hitDetector;
-  final Axis validateAxis;
+  final List<Axis> validateAxis;
   final double touchSlopFactor;
 
   Map<int, Offset> _pointerLocations = <int, Offset>{};
@@ -116,7 +118,7 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
 
   @override
   void handleEvent(PointerEvent event) {
-    if (validateAxis != null) {
+    if (validateAxis != null && validateAxis.isNotEmpty) {
       bool didChangeConfiguration = false;
       if (event is PointerMoveEvent) {
         if (!event.synthesized) {
@@ -149,7 +151,9 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
 
     // Compute the focal point
     Offset focalPoint = Offset.zero;
-    for (final int pointer in _pointerLocations.keys) focalPoint += _pointerLocations[pointer];
+    for (final int pointer in _pointerLocations.keys) {
+      focalPoint += _pointerLocations[pointer];
+    }
     _currentFocalPoint = count > 0 ? focalPoint / count.toDouble() : Offset.zero;
 
     // Span is the average deviation from focal point. Horizontal and vertical
@@ -175,7 +179,26 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
     }
 
     final move = _initialFocalPoint - _currentFocalPoint;
-    final bool shouldMove = validateAxis == Axis.vertical ? hitDetector.shouldMoveY(move) : hitDetector.shouldMoveX(move);
+    var shouldMove = false;
+    if (validateAxis.length == 2) {
+      // the image is the descendant of gesture detector(s) handling drag in both directions
+      final shouldMoveX = validateAxis.contains(Axis.horizontal) && hitDetector.shouldMoveX(move);
+      final shouldMoveY = validateAxis.contains(Axis.vertical) && hitDetector.shouldMoveY(move);
+      if (shouldMoveX == shouldMoveY) {
+        // consistently can/cannot pan the image in both direction the same way
+        shouldMove = shouldMoveX;
+      } else {
+        // can pan the image in one direction, but should yield to an ascendant gesture detector in the other one
+        final d = move.direction;
+        // the gesture direction angle is in ]-pi, pi], cf `Offset` doc for details
+        final xPan = (-pi / 4 < d && d < pi / 4) || (3 / 4 * pi < d && d <= pi) || (-pi < d && d < -3 / 4 * pi);
+        final yPan = (pi / 4 < d && d < 3 / 4 * pi) || (-3 / 4 * pi < d && d < -pi / 4);
+        shouldMove = (xPan && shouldMoveX) || (yPan && shouldMoveY);
+      }
+    } else {
+      // the image is the descendant of a gesture detector handling drag in one direction
+      shouldMove = validateAxis.contains(Axis.vertical) ? hitDetector.shouldMoveY(move) : hitDetector.shouldMoveX(move);
+    }
     if (shouldMove) {
       final double spanDelta = (_currentSpan - _initialSpan).abs();
       final double focalPointDelta = (_currentFocalPoint - _initialFocalPoint).distance;
@@ -220,7 +243,7 @@ class PhotoViewGestureDetectorScope extends InheritedWidget {
     return scope;
   }
 
-  final Axis axis;
+  final List<Axis> axis;
 
   // in [0, 1[
   // 0: most reactive but will not let tap recognizers accept gestures

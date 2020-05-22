@@ -41,7 +41,7 @@ class _DialogExampleInnerState extends State<DialogExampleInner> {
           shape: const ContinuousRectangleBorder(),
           builder: (BuildContext context) {
             return PhotoViewGestureDetectorScope(
-              axis: Axis.vertical,
+              axis: const [Axis.vertical],
               child: PhotoView(
                 backgroundDecoration:
                     BoxDecoration(color: Colors.black.withAlpha(240)),
@@ -62,7 +62,7 @@ class _DialogExampleInnerState extends State<DialogExampleInner> {
               child: Container(
                 height: 250,
                 child: PhotoViewGestureDetectorScope(
-                  axis: Axis.vertical,
+                  axis: const [Axis.vertical],
                   child: PhotoView(
                     tightMode: true,
                     imageProvider: const AssetImage("assets/large-image.jpg"),
