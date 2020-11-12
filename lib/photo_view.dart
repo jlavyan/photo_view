@@ -242,6 +242,7 @@ class PhotoView extends StatefulWidget {
     this.backgroundDecoration,
     this.gaplessPlayback = false,
     this.heroAttributes,
+    this.imageSizedCallback,
     this.scaleStateChangedCallback,
     this.enableRotation = false,
     this.controller,
@@ -290,6 +291,7 @@ class PhotoView extends StatefulWidget {
     this.filterQuality,
   })  : loadFailedChild = null,
         imageProvider = null,
+        imageSizedCallback = null,
         gaplessPlayback = false,
         loadingBuilder = null,
         loadingChild = null,
@@ -324,6 +326,10 @@ class PhotoView extends StatefulWidget {
   /// Defines the size of the scaling base of the image inside [PhotoView],
   /// by default it is `MediaQuery.of(context).size`.
   final Size customSize;
+
+  /// A [Function] to be called when the child size is set, typically after the image info is received.
+  /// It is especially useful for raw images that may be decoded to a size different from the original raw image one.
+  final ValueChanged<Size> imageSizedCallback;
 
   /// A [Function] to be called whenever the scaleState changes, this happens when the user double taps the content ou start to pinch-in.
   final ValueChanged<PhotoViewScaleState> scaleStateChangedCallback;
@@ -400,6 +406,11 @@ class _PhotoViewState extends State<PhotoView> {
   bool _controlledScaleStateController;
   PhotoViewScaleStateController _scaleStateController;
 
+  void _setChildSize(Size childSize) {
+    _childSize = childSize;
+    widget.imageSizedCallback?.call(childSize);
+  }
+
   Future<ImageInfo> _getImage() {
     final Completer completer = Completer<ImageInfo>();
     final ImageStream stream = widget.imageProvider.resolve(
@@ -413,10 +424,10 @@ class _PhotoViewState extends State<PhotoView> {
         completer.complete(info);
         if (mounted) {
           final setupCallback = () {
-            _childSize = Size(
+            _setChildSize(Size(
               info.image.width.toDouble(),
               info.image.height.toDouble(),
-            );
+            ));
             _loading = false;
             _imageChunkEvent = null;
           };
@@ -451,7 +462,7 @@ class _PhotoViewState extends State<PhotoView> {
     if (widget.child == null) {
       _getImage();
     } else {
-      _childSize = widget.childSize;
+      _setChildSize(widget.childSize);
       _loading = false;
       _imageChunkEvent = null;
     }
@@ -478,7 +489,7 @@ class _PhotoViewState extends State<PhotoView> {
   void didUpdateWidget(PhotoView oldWidget) {
     if (oldWidget.childSize != widget.childSize && widget.childSize != null) {
       setState(() {
-        _childSize = widget.childSize;
+        _setChildSize(widget.childSize);
       });
     }
     if (widget.controller == null) {
