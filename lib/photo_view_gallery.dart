@@ -15,7 +15,7 @@ import 'package:photo_view/src/core/photo_view_gesture_detector.dart';
 import 'package:photo_view/src/photo_view_scale_state.dart';
 import 'package:photo_view/src/utils/photo_view_hero_attributes.dart';
 
-//// A type definition for a [Function] that receives a index after a page change in [PhotoViewGallery]
+/// A type definition for a [Function] that receives a index after a page change in [PhotoViewGallery]
 typedef PhotoViewGalleryPageChangedCallback = void Function(int index);
 
 /// A type definition for a [Function] that defines a page in [PhotoViewGallery.build]
@@ -261,6 +261,7 @@ class _PhotoViewGalleryState extends State<PhotoViewGallery> {
             scaleStateChangedCallback: scaleStateChangedCallback,
             enableRotation: widget.enableRotation,
             enableMoveOnMinScale: widget.enableMoveOnMinScale,
+            enableDoubleTap: pageOption.enableDoubleTap,
             initialScale: pageOption.initialScale,
             minScale: pageOption.minScale,
             maxScale: pageOption.maxScale,
@@ -287,6 +288,7 @@ class _PhotoViewGalleryState extends State<PhotoViewGallery> {
             scaleStateChangedCallback: scaleStateChangedCallback,
             enableRotation: widget.enableRotation,
             enableMoveOnMinScale: widget.enableMoveOnMinScale,
+            enableDoubleTap: pageOption.enableDoubleTap,
             initialScale: pageOption.initialScale,
             minScale: pageOption.minScale,
             maxScale: pageOption.maxScale,
@@ -298,6 +300,7 @@ class _PhotoViewGalleryState extends State<PhotoViewGallery> {
             filterQuality: pageOption.filterQuality,
             basePosition: pageOption.basePosition,
             disableGestures: pageOption.disableGestures,
+            errorBuilder: pageOption.errorBuilder,
           );
 
     return ClipRect(
@@ -336,6 +339,8 @@ class PhotoViewGalleryPageOptions {
     this.tightMode,
     this.filterQuality,
     this.disableGestures,
+    this.enableDoubleTap,
+    this.errorBuilder,
   })  : child = null,
         childSize = null,
         assert(imageProvider != null);
@@ -357,7 +362,9 @@ class PhotoViewGalleryPageOptions {
     this.tightMode,
     this.filterQuality,
     this.disableGestures,
-  })  : imageProvider = null,
+    this.enableDoubleTap,
+  })  : errorBuilder = null,
+        imageProvider = null,
         assert(child != null);
 
   /// Mirror to [PhotoView.imageProvider]
@@ -408,6 +415,12 @@ class PhotoViewGalleryPageOptions {
   /// Mirror to [PhotoView.disableGestures]
   final bool disableGestures;
 
+  /// Mirror to [PhotoView.enableDoubleTap]
+  final bool enableDoubleTap;
+
   /// Quality levels for image filters.
   final FilterQuality filterQuality;
+
+  /// Mirror to [PhotoView.errorBuilder]
+  final ImageErrorWidgetBuilder errorBuilder;
 }

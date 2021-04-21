@@ -213,7 +213,7 @@ export 'src/utils/photo_view_hero_attributes.dart';
 ///             child: PhotoView(
 ///               imageProvider: AssetImage("assets/pudim.png"),
 ///               scaleStateController: scaleStateController,
-///               );
+///             );
 ///         ),
 ///         FlatButton(
 ///           child: Text("Go to original size"),
@@ -243,6 +243,7 @@ class PhotoView extends StatefulWidget {
     this.scaleStateChangedCallback,
     this.enableRotation = false,
     this.enableMoveOnMinScale = false,
+    this.enableDoubleTap,
     this.controller,
     this.scaleStateController,
     this.maxScale,
@@ -277,6 +278,7 @@ class PhotoView extends StatefulWidget {
     this.scaleStateChangedCallback,
     this.enableRotation = false,
     this.enableMoveOnMinScale = false,
+    this.enableDoubleTap,
     this.controller,
     this.scaleStateController,
     this.maxScale,
@@ -337,6 +339,9 @@ class PhotoView extends StatefulWidget {
 
   /// A flag that enables the move on minScale
   final bool enableMoveOnMinScale;
+
+  /// A flag that enables the double tap
+  final bool enableDoubleTap;
 
   /// The specified custom child to be shown instead of a image
   final Widget child;
@@ -494,6 +499,7 @@ class _PhotoViewState extends State<PhotoView> {
                 scaleStateChangedCallback: widget.scaleStateChangedCallback,
                 enableRotation: widget.enableRotation,
                 enableMoveOnMinScale: widget.enableMoveOnMinScale,
+                enableDoubleTap: widget.enableDoubleTap,
                 controller: _controller,
                 scaleStateController: _scaleStateController,
                 maxScale: widget.maxScale,
@@ -519,6 +525,7 @@ class _PhotoViewState extends State<PhotoView> {
                 scaleStateChangedCallback: widget.scaleStateChangedCallback,
                 enableRotation: widget.enableRotation,
                 enableMoveOnMinScale: widget.enableMoveOnMinScale,
+                enableDoubleTap: widget.enableDoubleTap,
                 controller: _controller,
                 scaleStateController: _scaleStateController,
                 maxScale: widget.maxScale,
@@ -533,6 +540,7 @@ class _PhotoViewState extends State<PhotoView> {
                 tightMode: widget.tightMode,
                 filterQuality: widget.filterQuality,
                 disableGestures: widget.disableGestures,
+                errorBuilder: widget.errorBuilder,
               );
       },
     );
