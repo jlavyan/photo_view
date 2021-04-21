@@ -20,7 +20,7 @@ class GestureScaleBloc extends StatefulWidget {
 
 class _GestureScaleBlocState extends State<GestureScaleBloc> {
   int pointers = 0;
-  bool get _isEnabled => pointers > 2;
+  bool get _isEnabled => pointers > 1;
   @override
   Widget build(BuildContext context) {
     return Listener(
