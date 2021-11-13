@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import '../photo_view.dart';
 import 'core/photo_view_core.dart';
+import '../photo_view_gesture_detector.dart';
 import 'photo_view_default_widgets.dart';
 import 'utils/photo_view_utils.dart';
 
@@ -36,7 +37,9 @@ class ImageWrapper extends StatefulWidget {
     required this.filterQuality,
     required this.disableGestures,
     required this.errorBuilder,
+    required this.gestureOut,
   }) : super(key: key);
+  final PhotoViewGestureAbstract? gestureOut;
 
   final ImageProvider? imageProvider;
   final LoadingBuilder? loadingBuilder;
@@ -205,6 +208,7 @@ class _ImageWrapperState extends State<ImageWrapper> {
       filterQuality: widget.filterQuality ?? FilterQuality.none,
       disableGestures: widget.disableGestures ?? false,
       enableDoubleTap: widget.enableDoubleTap ?? true,
+      gestureOut: null,
     );
   }
 
@@ -261,6 +265,7 @@ class CustomChildWrapper extends StatefulWidget {
     required this.filterQuality,
     required this.disableGestures,
     required this.enableDoubleTap,
+    required this.gestureOut,
   }) : super(key: key);
 
   final Widget? child;
@@ -272,6 +277,8 @@ class CustomChildWrapper extends StatefulWidget {
   final bool enableRotation;
   final bool enableMove;
   final bool enableMoveOnMinScale;
+
+  final PhotoViewGestureAbstract? gestureOut;
 
   final PhotoViewControllerBase? controller;
   final PhotoViewScaleStateController? scaleStateController;
@@ -309,6 +316,7 @@ class _CustomChildWrapperState extends State<CustomChildWrapper> {
 
     return PhotoViewCore.customChild(
       customChild: widget.child,
+      gestureOut: widget.gestureOut,
       backgroundDecoration: widget.backgroundDecoration,
       scrollFinishEdgeCallback: widget.scrollFinishEdgeCallback,
       enableRotation: widget.enableRotation,

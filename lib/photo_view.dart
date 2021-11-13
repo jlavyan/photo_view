@@ -10,9 +10,11 @@ import 'package:photo_view/src/photo_view_scale_state.dart';
 import 'package:photo_view/src/photo_view_wrappers.dart';
 import 'package:photo_view/src/utils/photo_view_hero_attributes.dart';
 
+import 'photo_view_gesture_detector.dart';
+
 export 'src/controller/photo_view_controller.dart';
 export 'src/controller/photo_view_scalestate_controller.dart';
-export 'src/core/photo_view_gesture_detector.dart'
+export 'photo_view_gesture_detector.dart'
     show PhotoViewGestureDetectorScope;
 export 'src/photo_view_computed_scale.dart';
 export 'src/photo_view_scale_state.dart';
@@ -260,6 +262,7 @@ class PhotoView extends StatefulWidget {
     this.filterQuality,
     this.disableGestures,
     this.errorBuilder,
+    this.gestureOut,
   })  : child = null,
         childSize = null,
         super(key: key);
@@ -274,6 +277,7 @@ class PhotoView extends StatefulWidget {
     Key? key,
     required this.child,
     this.childSize,
+    this.gestureOut,
     this.backgroundDecoration,
     this.heroAttributes,
     this.scaleStateChangedCallback,
@@ -303,6 +307,8 @@ class PhotoView extends StatefulWidget {
         gaplessPlayback = false,
         loadingBuilder = null,
         super(key: key);
+
+  final PhotoViewGestureAbstract? gestureOut;
 
   /// Given a [imageProvider] it resolves into an zoomable image widget using. It
   /// is required
@@ -506,6 +512,7 @@ class _PhotoViewState extends State<PhotoView> {
         return widget._isCustomChild
             ? CustomChildWrapper(
                 child: widget.child,
+                gestureOut: widget.gestureOut,
                 childSize: widget.childSize,
                 backgroundDecoration: widget.backgroundDecoration,
                 heroAttributes: widget.heroAttributes,
@@ -535,6 +542,7 @@ class _PhotoViewState extends State<PhotoView> {
                 imageProvider: widget.imageProvider,
                 loadingBuilder: widget.loadingBuilder,
                 loadFailedChild: widget.loadFailedChild,
+                gestureOut: widget.gestureOut,
                 backgroundDecoration: widget.backgroundDecoration,
                 gaplessPlayback: widget.gaplessPlayback,
                 heroAttributes: widget.heroAttributes,
@@ -613,4 +621,3 @@ typedef LoadingBuilder = Widget Function(
 );
 
 typedef ScrollFinishEdgeCallback = Function(ScrollEdge edge, double percent);
-

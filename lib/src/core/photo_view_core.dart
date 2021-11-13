@@ -1,5 +1,4 @@
 import 'package:flutter/widgets.dart';
-
 import 'package:photo_view/photo_view.dart'
     show
         PhotoViewScaleState,
@@ -9,12 +8,13 @@ import 'package:photo_view/photo_view.dart'
         ScrollFinishEdgeCallback,
         ScrollEdge,
         ScaleStateCycle;
+import 'package:photo_view/photo_view_gesture_detector.dart';
+import 'package:photo_view/photo_view_hit_corners.dart';
+import 'package:photo_view/photo_view_models.dart';
 import 'package:photo_view/src/controller/photo_view_controller.dart';
 import 'package:photo_view/src/controller/photo_view_controller_delegate.dart';
 import 'package:photo_view/src/controller/photo_view_scalestate_controller.dart';
 import 'package:photo_view/src/utils/photo_view_utils.dart';
-import 'package:photo_view/src/core/photo_view_gesture_detector.dart';
-import 'package:photo_view/src/core/photo_view_hit_corners.dart';
 
 const _defaultDecoration = const BoxDecoration(
   color: const Color.fromRGBO(0, 0, 0, 1.0),
@@ -45,8 +45,9 @@ class PhotoViewCore extends StatefulWidget {
     required this.bouncing,
     required this.filterQuality,
     required this.disableGestures,
+    required this.gestureOut,
     required this.enableDoubleTap,
-  })   : customChild = null,
+  })  : customChild = null,
         super(key: key);
 
   const PhotoViewCore.customChild({
@@ -71,7 +72,8 @@ class PhotoViewCore extends StatefulWidget {
     required this.filterQuality,
     required this.disableGestures,
     required this.enableDoubleTap,
-  })   : imageProvider = null,
+    required this.gestureOut,
+  })  : imageProvider = null,
         gaplessPlayback = false,
         super(key: key);
 
@@ -90,6 +92,7 @@ class PhotoViewCore extends StatefulWidget {
   final ScaleBoundaries scaleBoundaries;
   final ScaleStateCycle scaleStateCycle;
   final Alignment basePosition;
+  final PhotoViewGestureAbstract? gestureOut;
 
   final PhotoViewImageTapUpCallback? onTapUp;
   final PhotoViewImageTapDownCallback? onTapDown;
@@ -148,11 +151,13 @@ class PhotoViewCoreState extends State<PhotoViewCore>
   }
 
   void handleVeritcalScrollListener() {
-    double scrollPosition = _verticalScrollController!.position.pixels * scale!;
-    double percent =
+    final double scrollPosition =
+        _verticalScrollController!.position.pixels * scale!;
+    final double percent =
         scrollPosition.abs() * 100.0 / scaleBoundaries.childSize!.height;
 
-    ScrollEdge edge = scrollPosition > 0 ? ScrollEdge.bottom : ScrollEdge.top;
+    final ScrollEdge edge =
+        scrollPosition > 0 ? ScrollEdge.bottom : ScrollEdge.top;
 
     if (widget.scrollFinishEdgeCallback != null) {
       widget.scrollFinishEdgeCallback!(edge, percent);
@@ -160,20 +165,21 @@ class PhotoViewCoreState extends State<PhotoViewCore>
   }
 
   void handleHorizontalScrollListener() {
-    double scrollPosition =
+    final double scrollPosition =
         _horizontalScrollController!.position.pixels * scale!;
-    double percent =
+    final double percent =
         scrollPosition.abs() * 100.0 / scaleBoundaries.childSize!.width;
 
-    ScrollEdge edge = scrollPosition > 0 ? ScrollEdge.right : ScrollEdge.left;
+    final ScrollEdge edge =
+        scrollPosition > 0 ? ScrollEdge.right : ScrollEdge.left;
 
     if (widget.scrollFinishEdgeCallback != null) {
       widget.scrollFinishEdgeCallback!(edge, percent);
     }
   }
 
-  void onScaleStart(ScaleStartDetails details) {
-    _rotationBefore = controller!.rotation;
+  void onScaleStart(ChangeStartDetails details) {
+    _rotationBefore = controller?.rotation;
     _scaleBefore = scale;
     _normalizedPosition = details.focalPoint - controller!.position!;
     _scaleAnimationController!.stop();
@@ -181,24 +187,27 @@ class PhotoViewCoreState extends State<PhotoViewCore>
     _rotationAnimationController!.stop();
   }
 
-  void onScaleUpdate(ScaleUpdateDetails details) {
-    final double newScale = _scaleBefore! * details.scale;
-    final Offset delta = details.focalPoint - _normalizedPosition;
+  void onScaleUpdate(
+    ChangeUpdateDetails updateDetails,
+  ) {
+    final scale = updateDetails.scale;
+    final focalPoint = updateDetails.focalPoint;
+    final rotation = updateDetails.rotation;
+    final double newScale = _scaleBefore! * scale;
+    final Offset delta = focalPoint - _normalizedPosition;
 
     updateScaleStateFromNewScale(newScale);
 
     updateMultiple(
       scale: newScale,
-      position: widget.enableMove
-          ? clampPosition(position: delta * details.scale)
-          : null,
-      rotation:
-          widget.enableRotation ? _rotationBefore! + details.rotation : null,
-      rotationFocusPoint: widget.enableRotation ? details.focalPoint : null,
+      position:
+          widget.enableMove ? clampPosition(position: delta * scale) : null,
+      rotation: widget.enableRotation ? _rotationBefore! + rotation : null,
+      rotationFocusPoint: widget.enableRotation ? focalPoint : null,
     );
   }
 
-  void onScaleEnd(ScaleEndDetails details) {
+  void onScaleEnd(ChangeEndDetails details) {
     final double _scale = scale!;
     final Offset? _position = controller!.position;
     final double maxScale = scaleBoundaries.maxScale!;
@@ -307,10 +316,22 @@ class PhotoViewCoreState extends State<PhotoViewCore>
     _horizontalScrollController = ScrollController()
       ..addListener(handleHorizontalScrollListener);
 
+    _initGestureOut();
     initDelegate();
     addAnimateOnScaleStateUpdate(animateOnScaleStateUpdate);
 
     cachedScaleBoundaries = widget.scaleBoundaries;
+  }
+
+  void _initGestureOut() {
+    widget.gestureOut
+      ?..onDoubleTap = widget.enableDoubleTap ? nextScaleState : null
+      ..onScaleStart = onScaleStart
+      ..onScaleEnd = onScaleEnd
+      ..onScaleUpdate = onScaleUpdate
+      ..hitDetector = this
+      ..onTapUp = widget.onTapUp == null ? null : onTapUp
+      ..onTapDown = widget.onTapDown == null ? null : onTapDown;
   }
 
   void animateOnScaleStateUpdate(double? prevScale, double? nextScale) {
@@ -418,16 +439,20 @@ class PhotoViewCoreState extends State<PhotoViewCore>
               return child;
             }
 
-            return PhotoViewGestureDetector(
-              child: child,
-              onDoubleTap: widget.enableDoubleTap ? nextScaleState : null,
-              onScaleStart: onScaleStart,
-              onScaleUpdate: onScaleUpdate,
-              onScaleEnd: onScaleEnd,
-              hitDetector: this,
-              onTapUp: widget.onTapUp == null ? null : onTapUp,
-              onTapDown: widget.onTapDown == null ? null : onTapDown,
-            );
+            if (widget.gestureOut == null) {
+              return PhotoViewGestureDetector(
+                child: child,
+                onDoubleTap: widget.enableDoubleTap ? nextScaleState : null,
+                onScaleStart: onScaleStart,
+                onScaleUpdate: onScaleUpdate,
+                onScaleEnd: onScaleEnd,
+                hitDetector: this,
+                onTapUp: widget.onTapUp == null ? null : onTapUp,
+                onTapDown: widget.onTapDown == null ? null : onTapDown,
+              );
+            } else {
+              return child;
+            }
           } else {
             return Container();
           }

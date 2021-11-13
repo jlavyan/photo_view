@@ -1,8 +1,29 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
+import 'package:photo_view/photo_view_models.dart';
 
 import 'only_one_pointer_recognizer.dart';
 import 'photo_view_hit_corners.dart';
+
+abstract class PhotoViewGestureAbstract {
+  PhotoViewGestureAbstract(
+      {required this.onDoubleTap,
+      required this.hitDetector,
+      required this.onScaleStart,
+      required this.onScaleUpdate,
+      required this.onScaleEnd,
+      required this.onTapUp,
+      required this.onTapDown});
+  GestureDoubleTapCallback? onDoubleTap;
+  HitCornersDetector? hitDetector;
+
+  ScaleStartCallback? onScaleStart;
+  ScaleUpdateCallback? onScaleUpdate;
+  ScaleEndCallback? onScaleEnd;
+
+  GestureTapUpCallback? onTapUp;
+  GestureTapDownCallback? onTapDown;
+}
 
 class PhotoViewGestureDetector extends StatelessWidget {
   const PhotoViewGestureDetector({
@@ -21,9 +42,9 @@ class PhotoViewGestureDetector extends StatelessWidget {
   final GestureDoubleTapCallback? onDoubleTap;
   final HitCornersDetector? hitDetector;
 
-  final GestureScaleStartCallback? onScaleStart;
-  final GestureScaleUpdateCallback? onScaleUpdate;
-  final GestureScaleEndCallback? onScaleEnd;
+  final ScaleStartCallback? onScaleStart;
+  final ScaleUpdateCallback? onScaleUpdate;
+  final ScaleEndCallback? onScaleEnd;
 
   final GestureTapUpCallback? onTapUp;
   final GestureTapDownCallback? onTapDown;
@@ -67,9 +88,12 @@ class PhotoViewGestureDetector extends StatelessWidget {
           hitDetector: hitDetector, debugOwner: this, validateAxis: axis),
       (PhotoViewGestureRecognizer instance) {
         instance
-          ..onStart = onScaleStart
-          ..onUpdate = onScaleUpdate
-          ..onEnd = onScaleEnd;
+          ..onStart = ((detail) {
+            return onScaleStart?.call(ChangeStartDetails.fromScale(detail));
+          })
+          ..onUpdate = ((d) => onScaleUpdate?.call(ChangeUpdateDetails(
+              focalPoint: d.focalPoint, scale: d.scale, rotation: d.rotation)))
+          ..onEnd = (d) => onScaleEnd?.call(ChangeEndDetails.fromScale(d));
       },
     );
 
@@ -194,3 +218,5 @@ class PhotoViewGestureDetectorScope extends InheritedWidget {
     return axis != oldWidget.axis;
   }
 }
+
+extension _ChangeStartDetailsAddition on ChangeStartDetails {}
