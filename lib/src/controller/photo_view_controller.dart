@@ -72,7 +72,13 @@ abstract class PhotoViewControllerBase<T extends PhotoViewControllerValue?> {
     double? rotation,
     Offset? rotationFocusPoint,
   });
+
+  /// Aniamte to Scroll view to vertical y coordinate.
+  late OffsetCallback animatedToVerticalY;
 }
+
+typedef OffsetCallback = void Function(
+    {required double y, required Duration duration});
 
 /// The state value stored and streamed by [PhotoViewController].
 @immutable
@@ -289,4 +295,7 @@ class PhotoViewController
     }
     _valueNotifier.value = newValue;
   }
+
+  @override
+  late OffsetCallback animatedToVerticalY;
 }

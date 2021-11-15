@@ -25,6 +25,8 @@ class OnlyOnePointerRecognizer extends ScaleGestureRecognizer {
     if (!event.down && event.pointer == _p) {
       _p = 0;
     }
+
+    
     super.handleEvent(event);
   }
 }

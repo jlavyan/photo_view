@@ -1,18 +1,17 @@
 import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
-
 import 'package:photo_view/photo_view.dart'
     show
         PhotoViewControllerBase,
         PhotoViewScaleState,
         PhotoViewScaleStateController,
         ScaleStateCycle;
+import 'package:photo_view/src/controller/photo_view_controller.dart';
+import 'package:photo_view/src/controller/photo_view_scalestate_controller.dart';
 import 'package:photo_view/src/core/photo_view_core.dart';
 import 'package:photo_view/src/photo_view_scale_state.dart';
 import 'package:photo_view/src/utils/photo_view_utils.dart';
-import 'package:photo_view/src/controller/photo_view_controller.dart';
-import 'package:photo_view/src/controller/photo_view_scalestate_controller.dart';
 
 /// A  class to hold internal layout logic to sync both controller states
 ///
@@ -32,6 +31,8 @@ mixin PhotoViewControllerDelegate on State<PhotoViewCore> {
 
   /// Mark if scale need recalculation, useful for scale boundaries changes.
   bool markNeedsScaleRecalc = true;
+
+  Offset? get edgePadding => null;
 
   void initDelegate() {
     controller!.addIgnorableListener(_blindScaleListener);
@@ -107,7 +108,7 @@ mixin PhotoViewControllerDelegate on State<PhotoViewCore> {
     double? rotation,
     Offset? rotationFocusPoint,
   }) {
-    controller!.updateMultiple(
+    controller?.updateMultiple(
       position: position,
       scale: scale,
       rotation: rotation,
@@ -194,9 +195,11 @@ mixin PhotoViewControllerDelegate on State<PhotoViewCore> {
     final double screenHeight = scaleBoundaries.outerSize.height;
 
     double finalX = 0.0;
+    final padding = edgePadding ?? Offset.zero;
     if (screenWidth < computedWidth) {
       final cornersX = this.cornersX(scale: _scale);
-      finalX = _position!.dx.clamp(cornersX.min, cornersX.max);
+      finalX = _position!.dx
+          .clamp(cornersX.min - padding.dx, cornersX.max + padding.dx);
     } else {
       if (widget.enableMoveOnMinScale) {
         finalX = _position!.dx;
@@ -206,7 +209,8 @@ mixin PhotoViewControllerDelegate on State<PhotoViewCore> {
     double finalY = 0.0;
     if (screenHeight < computedHeight) {
       final cornersY = this.cornersY(scale: _scale);
-      finalY = _position!.dy.clamp(cornersY.min, cornersY.max);
+      finalY = _position!.dy
+          .clamp(cornersY.min - padding.dy, cornersY.max + padding.dy);
     } else {
       if (widget.enableMoveOnMinScale) {
         finalY = _position!.dy;

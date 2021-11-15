@@ -5,8 +5,6 @@ import 'package:photo_view/src/controller/photo_view_controller_delegate.dart'
 
 mixin HitCornersDetector on PhotoViewControllerDelegate {
   HitCorners _hitCornersX() {
-    print('called');
-
     final double childWidth = scaleBoundaries.childSize!.width * scale!;
     final double screenWidth = scaleBoundaries.outerSize.width;
     if (screenWidth >= childWidth) {
@@ -19,8 +17,6 @@ mixin HitCornersDetector on PhotoViewControllerDelegate {
   }
 
   HitCorners _hitCornersY() {
-    print('called');
-
     final double childHeight = scaleBoundaries.childSize!.height * scale!;
     final double screenHeight = scaleBoundaries.outerSize.height;
     if (screenHeight >= childHeight) {
@@ -33,8 +29,6 @@ mixin HitCornersDetector on PhotoViewControllerDelegate {
 
   bool _shouldMoveAxis(
       HitCorners hitCorners, double mainAxisMove, double crossAxisMove) {
-    print('called');
-
     if (mainAxisMove == 0) {
       return false;
     }
@@ -50,8 +44,6 @@ mixin HitCornersDetector on PhotoViewControllerDelegate {
   }
 
   bool _shouldMoveX(Offset move) {
-    print('called');
-
     final hitCornersX = _hitCornersX();
     final mainAxisMove = move.dx;
     final crossAxisMove = move.dy;
@@ -60,8 +52,6 @@ mixin HitCornersDetector on PhotoViewControllerDelegate {
   }
 
   bool _shouldMoveY(Offset move) {
-    print('called');
-
     final hitCornersY = _hitCornersY();
     final mainAxisMove = move.dy;
     final crossAxisMove = move.dx;
@@ -70,8 +60,6 @@ mixin HitCornersDetector on PhotoViewControllerDelegate {
   }
 
   bool shouldMove(Offset move, Axis mainAxis) {
-    print('called');
-
     if (mainAxis == Axis.vertical) {
       return _shouldMoveY(move);
     }

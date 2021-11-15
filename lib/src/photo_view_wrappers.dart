@@ -7,38 +7,39 @@ import 'photo_view_default_widgets.dart';
 import 'utils/photo_view_utils.dart';
 
 class ImageWrapper extends StatefulWidget {
-  const ImageWrapper({
-    Key? key,
-    required this.imageProvider,
-    required this.loadingBuilder,
-    required this.loadFailedChild,
-    required this.backgroundDecoration,
-    required this.gaplessPlayback,
-    required this.heroAttributes,
-    required this.scaleStateChangedCallback,
-    required this.scrollFinishEdgeCallback,
-    required this.enableRotation,
-    required this.enableMove,
-    required this.enableMoveOnMinScale,
-    required this.enableDoubleTap,
-    required this.controller,
-    required this.scaleStateController,
-    required this.maxScale,
-    required this.minScale,
-    required this.initialScale,
-    required this.basePosition,
-    required this.scaleStateCycle,
-    required this.onTapUp,
-    required this.onTapDown,
-    required this.outerSize,
-    required this.gestureDetectorBehavior,
-    required this.tightMode,
-    required this.bouncing,
-    required this.filterQuality,
-    required this.disableGestures,
-    required this.errorBuilder,
-    required this.gestureOut,
-  }) : super(key: key);
+  const ImageWrapper(
+      {Key? key,
+      required this.imageProvider,
+      required this.loadingBuilder,
+      required this.loadFailedChild,
+      required this.backgroundDecoration,
+      required this.gaplessPlayback,
+      required this.heroAttributes,
+      required this.scaleStateChangedCallback,
+      required this.scrollFinishEdgeCallback,
+      required this.enableRotation,
+      required this.enableMove,
+      required this.enableMoveOnMinScale,
+      required this.enableDoubleTap,
+      required this.controller,
+      required this.scaleStateController,
+      required this.maxScale,
+      required this.minScale,
+      required this.initialScale,
+      required this.basePosition,
+      required this.scaleStateCycle,
+      required this.onTapUp,
+      required this.onTapDown,
+      required this.outerSize,
+      required this.gestureDetectorBehavior,
+      required this.tightMode,
+      required this.bouncing,
+      required this.filterQuality,
+      required this.disableGestures,
+      required this.errorBuilder,
+      required this.gestureOut,
+      required this.edgePadding})
+      : super(key: key);
   final PhotoViewGestureAbstract? gestureOut;
 
   final ImageProvider? imageProvider;
@@ -60,6 +61,7 @@ class ImageWrapper extends StatefulWidget {
   final PhotoViewScaleStateController? scaleStateController;
   final Alignment? basePosition;
   final ScaleStateCycle? scaleStateCycle;
+  final Offset? edgePadding;
 
   final PhotoViewImageTapUpCallback? onTapUp;
   final PhotoViewImageTapDownCallback? onTapDown;
@@ -187,29 +189,29 @@ class _ImageWrapperState extends State<ImageWrapper> {
     );
 
     return PhotoViewCore(
-      imageProvider: widget.imageProvider,
-      backgroundDecoration: widget.backgroundDecoration,
-      scrollFinishEdgeCallback: widget.scrollFinishEdgeCallback,
-      gaplessPlayback: widget.gaplessPlayback,
-      enableRotation: widget.enableRotation,
-      enableMove: widget.enableMove,
-      enableMoveOnMinScale: widget.enableMoveOnMinScale,
-      heroAttributes: widget.heroAttributes,
-      basePosition: widget.basePosition ?? Alignment.center,
-      controller: widget.controller,
-      scaleStateController: widget.scaleStateController,
-      scaleStateCycle: widget.scaleStateCycle ?? defaultScaleStateCycle,
-      scaleBoundaries: scaleBoundaries,
-      onTapUp: widget.onTapUp,
-      onTapDown: widget.onTapDown,
-      gestureDetectorBehavior: widget.gestureDetectorBehavior,
-      tightMode: widget.tightMode ?? false,
-      bouncing: widget.bouncing ?? false,
-      filterQuality: widget.filterQuality ?? FilterQuality.none,
-      disableGestures: widget.disableGestures ?? false,
-      enableDoubleTap: widget.enableDoubleTap ?? true,
-      gestureOut: null,
-    );
+        imageProvider: widget.imageProvider,
+        backgroundDecoration: widget.backgroundDecoration,
+        scrollFinishEdgeCallback: widget.scrollFinishEdgeCallback,
+        gaplessPlayback: widget.gaplessPlayback,
+        enableRotation: widget.enableRotation,
+        enableMove: widget.enableMove,
+        enableMoveOnMinScale: widget.enableMoveOnMinScale,
+        heroAttributes: widget.heroAttributes,
+        basePosition: widget.basePosition ?? Alignment.center,
+        controller: widget.controller,
+        scaleStateController: widget.scaleStateController,
+        scaleStateCycle: widget.scaleStateCycle ?? defaultScaleStateCycle,
+        scaleBoundaries: scaleBoundaries,
+        onTapUp: widget.onTapUp,
+        onTapDown: widget.onTapDown,
+        gestureDetectorBehavior: widget.gestureDetectorBehavior,
+        tightMode: widget.tightMode ?? false,
+        bouncing: widget.bouncing ?? false,
+        filterQuality: widget.filterQuality ?? FilterQuality.none,
+        disableGestures: widget.disableGestures ?? false,
+        enableDoubleTap: widget.enableDoubleTap ?? true,
+        gestureOut: null,
+        edgePadding: widget.edgePadding);
   }
 
   Widget _buildLoading(BuildContext context) {
@@ -238,35 +240,36 @@ class _ImageWrapperState extends State<ImageWrapper> {
 }
 
 class CustomChildWrapper extends StatefulWidget {
-  const CustomChildWrapper({
-    Key? key,
-    required this.child,
-    required this.childSize,
-    required this.backgroundDecoration,
-    required this.heroAttributes,
-    required this.scaleStateChangedCallback,
-    required this.scrollFinishEdgeCallback,
-    required this.enableRotation,
-    required this.enableMove,
-    required this.enableMoveOnMinScale,
-    required this.controller,
-    required this.scaleStateController,
-    required this.maxScale,
-    required this.minScale,
-    required this.initialScale,
-    required this.basePosition,
-    required this.scaleStateCycle,
-    required this.onTapUp,
-    required this.onTapDown,
-    required this.outerSize,
-    required this.gestureDetectorBehavior,
-    required this.tightMode,
-    required this.bouncing,
-    required this.filterQuality,
-    required this.disableGestures,
-    required this.enableDoubleTap,
-    required this.gestureOut,
-  }) : super(key: key);
+  const CustomChildWrapper(
+      {Key? key,
+      required this.child,
+      required this.childSize,
+      required this.backgroundDecoration,
+      required this.heroAttributes,
+      required this.scaleStateChangedCallback,
+      required this.scrollFinishEdgeCallback,
+      required this.enableRotation,
+      required this.enableMove,
+      required this.enableMoveOnMinScale,
+      required this.controller,
+      required this.scaleStateController,
+      required this.maxScale,
+      required this.minScale,
+      required this.initialScale,
+      required this.basePosition,
+      required this.scaleStateCycle,
+      required this.onTapUp,
+      required this.onTapDown,
+      required this.outerSize,
+      required this.gestureDetectorBehavior,
+      required this.tightMode,
+      required this.bouncing,
+      required this.filterQuality,
+      required this.disableGestures,
+      required this.enableDoubleTap,
+      required this.gestureOut,
+      required this.edgePadding})
+      : super(key: key);
 
   final Widget? child;
   final Size? childSize;
@@ -286,6 +289,8 @@ class CustomChildWrapper extends StatefulWidget {
   final dynamic maxScale;
   final dynamic minScale;
   final dynamic initialScale;
+
+  final dynamic edgePadding;
 
   final Alignment? basePosition;
   final ScaleStateCycle? scaleStateCycle;
@@ -315,27 +320,27 @@ class _CustomChildWrapperState extends State<CustomChildWrapper> {
     );
 
     return PhotoViewCore.customChild(
-      customChild: widget.child,
-      gestureOut: widget.gestureOut,
-      backgroundDecoration: widget.backgroundDecoration,
-      scrollFinishEdgeCallback: widget.scrollFinishEdgeCallback,
-      enableRotation: widget.enableRotation,
-      enableMove: widget.enableMove,
-      enableMoveOnMinScale: widget.enableMoveOnMinScale,
-      heroAttributes: widget.heroAttributes,
-      controller: widget.controller,
-      scaleStateController: widget.scaleStateController,
-      scaleStateCycle: widget.scaleStateCycle ?? defaultScaleStateCycle,
-      basePosition: widget.basePosition ?? Alignment.center,
-      scaleBoundaries: scaleBoundaries,
-      onTapUp: widget.onTapUp,
-      onTapDown: widget.onTapDown,
-      gestureDetectorBehavior: widget.gestureDetectorBehavior,
-      tightMode: widget.tightMode ?? false,
-      bouncing: widget.bouncing ?? false,
-      filterQuality: widget.filterQuality ?? FilterQuality.none,
-      disableGestures: widget.disableGestures ?? false,
-      enableDoubleTap: widget.enableDoubleTap ?? true,
-    );
+        customChild: widget.child,
+        gestureOut: widget.gestureOut,
+        backgroundDecoration: widget.backgroundDecoration,
+        scrollFinishEdgeCallback: widget.scrollFinishEdgeCallback,
+        enableRotation: widget.enableRotation,
+        enableMove: widget.enableMove,
+        enableMoveOnMinScale: widget.enableMoveOnMinScale,
+        heroAttributes: widget.heroAttributes,
+        controller: widget.controller,
+        scaleStateController: widget.scaleStateController,
+        scaleStateCycle: widget.scaleStateCycle ?? defaultScaleStateCycle,
+        basePosition: widget.basePosition ?? Alignment.center,
+        scaleBoundaries: scaleBoundaries,
+        onTapUp: widget.onTapUp,
+        onTapDown: widget.onTapDown,
+        gestureDetectorBehavior: widget.gestureDetectorBehavior,
+        tightMode: widget.tightMode ?? false,
+        bouncing: widget.bouncing ?? false,
+        filterQuality: widget.filterQuality ?? FilterQuality.none,
+        disableGestures: widget.disableGestures ?? false,
+        enableDoubleTap: widget.enableDoubleTap ?? true,
+        edgePadding: widget.edgePadding);
   }
 }

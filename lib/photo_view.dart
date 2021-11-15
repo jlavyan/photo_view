@@ -14,8 +14,7 @@ import 'photo_view_gesture_detector.dart';
 
 export 'src/controller/photo_view_controller.dart';
 export 'src/controller/photo_view_scalestate_controller.dart';
-export 'photo_view_gesture_detector.dart'
-    show PhotoViewGestureDetectorScope;
+export 'photo_view_gesture_detector.dart' show PhotoViewGestureDetectorScope;
 export 'src/photo_view_computed_scale.dart';
 export 'src/photo_view_scale_state.dart';
 export 'src/utils/photo_view_hero_attributes.dart';
@@ -232,38 +231,39 @@ class PhotoView extends StatefulWidget {
   /// image providers, ie: [AssetImage] or [NetworkImage]
   ///
   /// Internally, the image is rendered within an [Image] widget.
-  PhotoView({
-    Key? key,
-    required this.imageProvider,
-    this.loadingBuilder,
-    this.loadFailedChild,
-    this.backgroundDecoration,
-    this.gaplessPlayback = false,
-    this.heroAttributes,
-    this.scaleStateChangedCallback,
-    this.scrollFinishEdgeCallback,
-    this.enableRotation = false,
-    this.enableMove = true,
-    this.enableMoveOnMinScale = false,
-    this.enableDoubleTap,
-    this.controller,
-    this.scaleStateController,
-    this.maxScale,
-    this.minScale,
-    this.initialScale,
-    this.basePosition,
-    this.scaleStateCycle,
-    this.onTapUp,
-    this.onTapDown,
-    this.customSize,
-    this.gestureDetectorBehavior,
-    this.tightMode,
-    this.bouncing,
-    this.filterQuality,
-    this.disableGestures,
-    this.errorBuilder,
-    this.gestureOut,
-  })  : child = null,
+  PhotoView(
+      {Key? key,
+      required this.imageProvider,
+      this.loadingBuilder,
+      this.loadFailedChild,
+      this.backgroundDecoration,
+      this.gaplessPlayback = false,
+      this.heroAttributes,
+      this.scaleStateChangedCallback,
+      this.scrollFinishEdgeCallback,
+      this.enableRotation = false,
+      this.enableMove = true,
+      this.enableMoveOnMinScale = false,
+      this.enableDoubleTap,
+      this.controller,
+      this.scaleStateController,
+      this.maxScale,
+      this.minScale,
+      this.initialScale,
+      this.basePosition,
+      this.scaleStateCycle,
+      this.onTapUp,
+      this.onTapDown,
+      this.customSize,
+      this.gestureDetectorBehavior,
+      this.tightMode,
+      this.bouncing,
+      this.filterQuality,
+      this.disableGestures,
+      this.errorBuilder,
+      this.gestureOut,
+      this.edgePadding})
+      : child = null,
         childSize = null,
         super(key: key);
 
@@ -273,35 +273,36 @@ class PhotoView extends StatefulWidget {
   ///
   /// Instead of a [imageProvider], this constructor will receive a [child] and a [childSize].
   ///
-  PhotoView.customChild({
-    Key? key,
-    required this.child,
-    this.childSize,
-    this.gestureOut,
-    this.backgroundDecoration,
-    this.heroAttributes,
-    this.scaleStateChangedCallback,
-    this.scrollFinishEdgeCallback,
-    this.enableRotation = false,
-    this.enableMove = true,
-    this.enableMoveOnMinScale = false,
-    this.enableDoubleTap,
-    this.controller,
-    this.scaleStateController,
-    this.maxScale,
-    this.minScale,
-    this.initialScale,
-    this.basePosition,
-    this.scaleStateCycle,
-    this.onTapUp,
-    this.onTapDown,
-    this.customSize,
-    this.gestureDetectorBehavior,
-    this.tightMode,
-    this.bouncing,
-    this.filterQuality,
-    this.disableGestures,
-  })  : loadFailedChild = null,
+  PhotoView.customChild(
+      {Key? key,
+      required this.child,
+      this.childSize,
+      this.gestureOut,
+      this.backgroundDecoration,
+      this.heroAttributes,
+      this.scaleStateChangedCallback,
+      this.scrollFinishEdgeCallback,
+      this.enableRotation = false,
+      this.enableMove = true,
+      this.enableMoveOnMinScale = false,
+      this.enableDoubleTap,
+      this.controller,
+      this.scaleStateController,
+      this.maxScale,
+      this.minScale,
+      this.initialScale,
+      this.basePosition,
+      this.scaleStateCycle,
+      this.onTapUp,
+      this.onTapDown,
+      this.customSize,
+      this.gestureDetectorBehavior,
+      this.tightMode,
+      this.bouncing,
+      this.filterQuality,
+      this.disableGestures,
+      this.edgePadding})
+      : loadFailedChild = null,
         errorBuilder = null,
         imageProvider = null,
         gaplessPlayback = false,
@@ -336,6 +337,9 @@ class PhotoView extends StatefulWidget {
   /// Attributes that are going to be passed to [PhotoViewCore]'s
   /// [Hero]. Leave this property undefined if you don't want a hero animation.
   final PhotoViewHeroAttributes? heroAttributes;
+
+  /// Defines the padding from x, y axis.
+  final Offset? edgePadding;
 
   /// Defines the size of the scaling base of the image inside [PhotoView],
   /// by default it is `MediaQuery.of(context).size`.
@@ -537,6 +541,7 @@ class _PhotoViewState extends State<PhotoView> {
                 bouncing: widget.bouncing,
                 filterQuality: widget.filterQuality,
                 disableGestures: widget.disableGestures,
+                edgePadding: widget.edgePadding,
               )
             : ImageWrapper(
                 imageProvider: widget.imageProvider,
@@ -568,6 +573,7 @@ class _PhotoViewState extends State<PhotoView> {
                 filterQuality: widget.filterQuality,
                 disableGestures: widget.disableGestures,
                 errorBuilder: widget.errorBuilder,
+                edgePadding: widget.edgePadding,
               );
       },
     );
