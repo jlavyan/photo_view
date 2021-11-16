@@ -149,7 +149,8 @@ class PhotoViewCoreState extends State<PhotoViewCore>
   @override
   Offset? get edgePadding => widget.edgePadding;
 
-  void animatedToVerticalY({required double y, required Duration duration}) {
+  void animatedToVerticalY(
+      {required double y, required Duration duration, required Curve curve}) {
     assert(lastValue != null, 'lasvalue always should be initialized');
 
     final useImageScale = widget.filterQuality != FilterQuality.none;
@@ -164,7 +165,8 @@ class PhotoViewCoreState extends State<PhotoViewCore>
         offset: Offset(offset.dx, y),
         scale: computedScale ?? 1,
         rotation: lastValue?.rotation ?? 0);
-    _controller.applyOffset(from: from, to: to, duration: duration);
+    _controller.applyOffset(
+        from: from, to: to, duration: duration, curve: curve);
   }
 
   void handleScaleAnimation() {

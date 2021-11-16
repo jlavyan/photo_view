@@ -78,7 +78,7 @@ abstract class PhotoViewControllerBase<T extends PhotoViewControllerValue?> {
 }
 
 typedef OffsetCallback = void Function(
-    {required double y, required Duration duration});
+    {required double y, required Duration duration, required Curve curve});
 
 /// The state value stored and streamed by [PhotoViewController].
 @immutable

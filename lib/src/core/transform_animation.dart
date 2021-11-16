@@ -69,7 +69,8 @@ class _State extends State<TransformAnimation> with TickerProviderStateMixin {
   void applyOffset(
       {required TranslateInformation from,
       required TranslateInformation to,
-      required Duration duration}) {
+      required Duration duration,
+      required Curve curve}) {
     _initialize(duration: duration);
 
     final _controller = controller;
@@ -79,7 +80,9 @@ class _State extends State<TransformAnimation> with TickerProviderStateMixin {
     }
     _start = _transform.offset.dy;
     final dy = _transform.offset.dy + to.offset.dy;
-    animation = Tween<double>(begin: 0, end: -dy).animate(_controller);
+    animation = Tween<double>(begin: 0, end: -dy)
+        .animate(CurvedAnimation(parent: _controller, curve: curve));
+
     controller?.forward();
   }
 
@@ -99,7 +102,8 @@ class TransformController {
 typedef TransformAnimationMethod = void Function(
     {required TranslateInformation from,
     required TranslateInformation to,
-    required Duration duration});
+    required Duration duration,
+    required Curve curve});
 
 class TranslateInformation {
   TranslateInformation(
