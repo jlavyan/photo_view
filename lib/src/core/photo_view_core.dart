@@ -169,6 +169,10 @@ class PhotoViewCoreState extends State<PhotoViewCore>
         from: from, to: to, duration: duration, curve: curve);
   }
 
+  void cancel() {
+    _controller.cancel();
+  }
+
   void handleScaleAnimation() {
     scale = _scaleAnimation.value;
   }
@@ -365,6 +369,7 @@ class PhotoViewCoreState extends State<PhotoViewCore>
       ..onTapDown = widget.onTapDown == null ? null : onTapDown;
 
     widget.controller?.animatedToVerticalY = animatedToVerticalY;
+    widget.controller?.cancel = cancel;
   }
 
   void animateOnScaleStateUpdate(double? prevScale, double? nextScale) {
@@ -456,12 +461,11 @@ class PhotoViewCoreState extends State<PhotoViewCore>
                   : null,
               child: Center(
                 child: TransformAnimation(
-                  child: customChildLayout,
-                  transform: matrix,
-                  basePosition: basePosition,
-                  controller: _controller,
-                  photoViewController: widget.controller,
-                ),
+                    child: customChildLayout,
+                    transform: matrix,
+                    basePosition: basePosition,
+                    controller: _controller,
+                    photoViewController: widget.controller),
               ),
               decoration: widget.backgroundDecoration ?? _defaultDecoration,
             );

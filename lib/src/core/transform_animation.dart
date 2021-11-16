@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 
 class TransformAnimation extends StatefulWidget {
-  TransformAnimation(
-      {required this.child,
-      required this.transform,
-      required this.basePosition,
-      required this.controller,
-      required this.photoViewController});
+  TransformAnimation({
+    required this.child,
+    required this.transform,
+    required this.basePosition,
+    required this.controller,
+    required this.photoViewController,
+  });
 
   final Widget child;
   final TranslateInformation transform;
@@ -31,12 +32,15 @@ class _State extends State<TransformAnimation> with TickerProviderStateMixin {
 
   TranslateInformation get _transform => widget.transform;
 
+  Tween<double>? _tween;
   double _start = 0;
   @override
   void initState() {
     super.initState();
 
+    _initialize();
     _controller.applyOffset = applyOffset;
+    _controller.cancel = cancel;
   }
 
   @override
@@ -46,10 +50,8 @@ class _State extends State<TransformAnimation> with TickerProviderStateMixin {
     controller?.dispose();
   }
 
-  void _initialize({required Duration duration}) {
-    controller?.dispose();
-
-    controller = AnimationController(vsync: this, duration: duration);
+  void _initialize() {
+    controller = AnimationController(vsync: this, duration: Duration.zero);
     controller?.addListener(_animaitonChange);
   }
 
@@ -66,24 +68,68 @@ class _State extends State<TransformAnimation> with TickerProviderStateMixin {
     );
   }
 
+  void cancel() {
+    controller?.stop();
+  }
+
   void applyOffset(
       {required TranslateInformation from,
       required TranslateInformation to,
       required Duration duration,
       required Curve curve}) {
-    _initialize(duration: duration);
-
     final _controller = controller;
+
     assert(_controller != null, 'controller must be initialized');
     if (_controller == null) {
       return;
     }
-    _start = _transform.offset.dy;
-    final dy = _transform.offset.dy + to.offset.dy;
-    animation = Tween<double>(begin: 0, end: -dy)
-        .animate(CurvedAnimation(parent: _controller, curve: curve));
+    _controller.value = from.offset.dy;
 
-    controller?.forward();
+    final double start = _controller.value == 1 ? 0 : _controller.value;
+    if (_controller.isAnimating) {
+      setNewPosition(from: start, controller: _controller, to: to);
+    } else {
+      restartAnimation(
+          duration: duration,
+          from: start,
+          to: to,
+          curve: curve,
+          controller: _controller);
+    }
+  }
+
+  void setNewPosition({
+    required double from,
+    required AnimationController controller,
+    required TranslateInformation to,
+  }) {
+    _tween?.begin = from;
+    controller.reset();
+
+    final dy = calculateEnd(to);
+    _tween?.end = -dy;
+    controller.forward();
+  }
+
+  void restartAnimation(
+      {required Duration duration,
+      required double from,
+      required TranslateInformation to,
+      required AnimationController controller,
+      required Curve curve}) {
+    controller.duration = duration;
+    _start = _transform.offset.dy;
+    final dy = calculateEnd(to);
+    _tween = Tween<double>(begin: 0, end: -dy);
+    animation =
+        _tween?.animate(CurvedAnimation(parent: controller, curve: curve));
+
+    controller.forward(from: from);
+  }
+
+  double calculateEnd(TranslateInformation to) {
+    final dy = _transform.offset.dy + to.offset.dy;
+    return dy;
   }
 
   void _animaitonChange() {
@@ -96,6 +142,7 @@ class _State extends State<TransformAnimation> with TickerProviderStateMixin {
 class TransformController {
   TransformController();
 
+  late VoidCallback cancel;
   late TransformAnimationMethod applyOffset;
 }
 

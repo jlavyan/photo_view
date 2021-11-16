@@ -75,6 +75,8 @@ abstract class PhotoViewControllerBase<T extends PhotoViewControllerValue?> {
 
   /// Aniamte to Scroll view to vertical y coordinate.
   late OffsetCallback animatedToVerticalY;
+
+  late VoidCallback cancel;
 }
 
 typedef OffsetCallback = void Function(
@@ -298,4 +300,7 @@ class PhotoViewController
 
   @override
   late OffsetCallback animatedToVerticalY;
+
+  @override
+  late VoidCallback cancel;
 }
