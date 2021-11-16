@@ -36,7 +36,6 @@ class _State extends State<TransformAnimation> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    _initialize();
     _controller.applyOffset = applyOffset;
   }
 
@@ -47,9 +46,10 @@ class _State extends State<TransformAnimation> with TickerProviderStateMixin {
     controller?.dispose();
   }
 
-  void _initialize() {
-    controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 300));
+  void _initialize({required Duration duration}) {
+    controller?.dispose();
+
+    controller = AnimationController(vsync: this, duration: duration);
     controller?.addListener(_animaitonChange);
   }
 
@@ -67,7 +67,11 @@ class _State extends State<TransformAnimation> with TickerProviderStateMixin {
   }
 
   void applyOffset(
-      {required TranslateInformation from, required TranslateInformation to}) {
+      {required TranslateInformation from,
+      required TranslateInformation to,
+      required Duration duration}) {
+    _initialize(duration: duration);
+
     final _controller = controller;
     assert(_controller != null, 'controller must be initialized');
     if (_controller == null) {
@@ -75,10 +79,7 @@ class _State extends State<TransformAnimation> with TickerProviderStateMixin {
     }
     _start = _transform.offset.dy;
     final dy = _transform.offset.dy + to.offset.dy;
-    animation = Tween<double>(begin: 0, end: -dy).animate(_controller)
-      ..addStatusListener((status) {
-        _initialize();
-      });
+    animation = Tween<double>(begin: 0, end: -dy).animate(_controller);
     controller?.forward();
   }
 
@@ -96,7 +97,9 @@ class TransformController {
 }
 
 typedef TransformAnimationMethod = void Function(
-    {required TranslateInformation from, required TranslateInformation to});
+    {required TranslateInformation from,
+    required TranslateInformation to,
+    required Duration duration});
 
 class TranslateInformation {
   TranslateInformation(

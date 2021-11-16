@@ -164,7 +164,7 @@ class PhotoViewCoreState extends State<PhotoViewCore>
         offset: Offset(offset.dx, y),
         scale: computedScale ?? 1,
         rotation: lastValue?.rotation ?? 0);
-    _controller.applyOffset(from: from, to: to);
+    _controller.applyOffset(from: from, to: to, duration: duration);
   }
 
   void handleScaleAnimation() {
